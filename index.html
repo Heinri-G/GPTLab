@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My ChatGPT Clone</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>Chat History</h2>
+            <ul id="chat-history">
+                <!-- Chat history items will be populated here -->
+            </ul>
+        </aside>
+        <main class="chat-area">
+            <header class="chat-header">
+                <div class="model-selection">
+                    <label for="model-select">Model:</label>
+                    <select id="model-select">
+                        <!-- Options will be populated by JavaScript -->
+                        <option value="gpt-3.5-turbo">GPT-3.5-Turbo</option>
+                        <option value="gpt-4">GPT-4</option>
+                        <!-- Add more models as needed -->
+                    </select>
+                </div>
+                <div class="token-usage-cost" id="token-usage-cost">
+                    <p>Tokens: <span id="token-count">0</span></p>
+                    <p>Cost: $<span id="cost-display">0.00</span></p>
+                </div>
+            </header>
+            <div class="messages-area" id="messages-area">
+                <!-- Chat messages will be displayed here -->
+            </div>
+            <footer class="input-area">
+                <textarea id="message-input" placeholder="Send a message..."></textarea>
+                <button id="send-button">Send</button>
+            </footer>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
