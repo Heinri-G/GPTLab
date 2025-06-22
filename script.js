@@ -6,6 +6,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const modelSelect = document.getElementById('model-select');
     const tokenCountSpan = document.getElementById('token-count');
     const costDisplaySpan = document.getElementById('cost-display');
+    const sidebar = document.getElementById('sidebar');
+    const menuButton = document.getElementById('menu-button');
+    const closeSidebarButton = document.getElementById('close-sidebar-button');
+    const sendButtonIcon = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>`;
+
 
     // --- Hardcoded API Key (FOR DEVELOPMENT ONLY) ---
     // IMPORTANT: Replace this with a secure method of handling API keys in a production environment!
@@ -39,8 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
             sendMessage();
         }
     });
+
     modelSelect.addEventListener('change', () => {
-        // Potentially reset chat or warn user if changing model mid-chat
         console.log("Model changed to:", modelSelect.value);
         // Reset token and cost if model changes, or handle context differently
         resetTokenCost();
@@ -73,10 +78,35 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedModel = modelSelect.value;
         const apiUrl = 'https://api.openai.com/v1/chat/completions';
 
-        // Prepare messages for the API (only send a reasonable history to save tokens)
-        // For simplicity, sending the whole currentChat here.
-        // In a real app, you might want to truncate or summarize older messages.
+        // Prepare messages for the API
         const messagesForAPI = chatMessages.map(msg => ({ role: msg.role, content: msg.content }));
+
+        // --- BEGIN MOCK API RESPONSE LOGIC (for testing without API key) ---
+        if (OPENAI_API_KEY === 'YOUR_API_KEY_HERE') {
+            console.log("Using MOCK API Response because no API key is provided.");
+            removeLoadingMessage(); // Remove "Thinking..."
+            setTimeout(() => {
+                const mockResponses = [
+                    "This is a mock response for testing purposes.",
+                    "If you see this, the mock API is working!",
+                    "Remember to replace 'YOUR_API_KEY_HERE' with your actual OpenAI API key in script.js to use the real API.",
+                    "The quick brown fox jumps over the lazy dog.",
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                    "This mock response simulates a delay."
+                ];
+                const assistantMessage = mockResponses[Math.floor(Math.random() * mockResponses.length)];
+                displayMessage(assistantMessage, 'assistant');
+                currentChat.push({ role: 'assistant', content: assistantMessage });
+
+                // Simulate token usage
+                const mockInputTokens = Math.floor(Math.random() * 50) + 10; // e.g., 10-60 tokens
+                const mockOutputTokens = Math.floor(Math.random() * 100) + 20; // e.g., 20-120 tokens
+                updateTokenAndCost(mockInputTokens, mockOutputTokens, selectedModel);
+                saveCurrentChat();
+            }, 1000 + Math.random() * 1000); // Simulate network delay
+            return;
+        }
+        // --- END MOCK API RESPONSE LOGIC ---
 
         try {
             const response = await fetch(apiUrl, {
@@ -273,61 +303,121 @@ document.addEventListener('DOMContentLoaded', () => {
     const newChatButton = document.createElement('button');
     newChatButton.textContent = '+ New Chat';
     newChatButton.id = 'new-chat-button';
-    newChatButton.addEventListener('click', startNewChat);
-    sidebar.insertBefore(newChatButton, sidebar.childNodes[1]); // Insert after the H2
+    newChatButton.addEventListener('click', () => {
+        startNewChat();
+        if (window.innerWidth <= 768 && sidebar.classList.contains('open')) { // Close sidebar on mobile after action
+            sidebar.classList.remove('open');
+        }
+    });
+    // Ensure sidebar-header exists before inserting newChatButton
+    const sidebarHeader = sidebar.querySelector('.sidebar-header');
+    if (sidebarHeader) {
+        sidebarHeader.parentNode.insertBefore(newChatButton, sidebarHeader.nextSibling);
+    } else { // Fallback if header structure changes
+        sidebar.insertBefore(newChatButton, chatHistoryUl);
+    }
+
+
+    // Sidebar toggle for mobile
+    if (menuButton && closeSidebarButton && sidebar) {
+        menuButton.addEventListener('click', () => {
+            sidebar.classList.add('open');
+        });
+
+        closeSidebarButton.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (event) => {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open') &&
+                !sidebar.contains(event.target) && !menuButton.contains(event.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+    }
+     // Load chat and close sidebar on mobile
+    function loadChatAndCloseSidebar(chatId) {
+        loadChat(chatId);
+        if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+            sidebar.classList.remove('open');
+        }
+    }
+
+    // Update chat history list items to use loadChatAndCloseSidebar
+    function addChatToHistoryList(chatId, title) {
+        const listItem = document.createElement('li');
+        listItem.textContent = title;
+        listItem.dataset.chatId = chatId;
+        listItem.addEventListener('click', () => loadChatAndCloseSidebar(chatId)); // MODIFIED HERE
+
+        const deleteButton = document.createElement('button');
+        deleteButton.innerHTML = '&times;'; // More modern delete icon
+        deleteButton.classList.add('delete-chat-button');
+        deleteButton.setAttribute('aria-label', 'Delete chat');
+        deleteButton.onclick = (event) => {
+            event.stopPropagation();
+            deleteChat(chatId);
+        };
+        listItem.appendChild(deleteButton);
+        chatHistoryUl.prepend(listItem);
+    }
+
+
+    // Add Send Button Icon
+    sendButton.innerHTML = sendButtonIcon;
+
 
     // Add some styles for the new chat button and delete button in CSS if needed
+    // These are now primarily handled in style.css but keeping inserts for critical overrides or JS-only styles
     const styleSheet = document.styleSheets[0];
     try {
+        // Styles for dynamically added elements or overrides if necessary
+        // Most styling is now in style.css to keep JS cleaner.
+        // Example: if #new-chat-button needs specific JS-driven style:
         styleSheet.insertRule(`
             #new-chat-button {
                 display: block;
-                width: calc(100% - 10px); /* Adjust width as needed */
-                padding: 10px 5px;
+                width: calc(100% - 0px); /* Full width inside padding */
+                padding: 12px 10px;
                 margin-bottom: 15px;
-                background-color: #007bff;
+                background-color: #007aff; /* Modern blue */
                 color: white;
                 border: none;
-                border-radius: 4px;
+                border-radius: 6px;
                 cursor: pointer;
                 text-align: center;
-                font-size: 0.9em;
+                font-size: 0.95em;
+                font-weight: 500;
+                transition: background-color 0.2s ease;
             }
         `, styleSheet.cssRules.length);
         styleSheet.insertRule(`
             #new-chat-button:hover {
-                background-color: #0056b3;
+                background-color: #005bb5; /* Darker blue on hover */
             }
         `, styleSheet.cssRules.length);
-        styleSheet.insertRule(`
-            .sidebar { position: relative; }
-        `, styleSheet.cssRules.length);
-        styleSheet.insertRule(`
-            #chat-history li {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding-right: 5px; /* Space for delete button */
-            }
-        `, styleSheet.cssRules.length);
+
         styleSheet.insertRule(`
             .delete-chat-button {
                 background: transparent;
                 border: none;
-                color: #ff6b6b; /* Light red for delete */
+                color: #adb5bd; /* Softer delete icon color */
                 cursor: pointer;
-                font-size: 0.8em;
-                padding: 2px 5px;
+                font-size: 1.2em; /* Larger for easier clicking */
+                padding: 5px;
+                line-height: 1;
+                transition: color 0.2s ease;
             }
         `, styleSheet.cssRules.length);
         styleSheet.insertRule(`
             .delete-chat-button:hover {
-                color: #ff0000; /* Brighter red on hover */
+                color: #ff4d4f; /* Red on hover */
             }
         `, styleSheet.cssRules.length);
          styleSheet.insertRule(`
             .message.assistant.system-error {
-                background-color: #ffebee; /* Light red background for errors */
+                background-color: #fff0f0; /* Lighter red background for errors */
                 color: #c62828; /* Darker red text */
                 border: 1px solid #ef9a9a;
             }

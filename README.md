@@ -4,10 +4,12 @@ This project is a simple frontend implementation of a ChatGPT-like interface tha
 
 ## Features
 
+*   **Modern & Responsive UI:** Clean, intuitive interface that adapts to desktop and mobile devices.
 *   **Chat Interface:** Send messages to an AI model and receive responses.
 *   **Chat History:** Conversations are saved in your browser's local storage. You can load previous chats, start new ones, and delete old ones.
 *   **Model Selection:** Choose between different OpenAI models (e.g., GPT-3.5-Turbo, GPT-4).
 *   **Token Usage & Cost:** See an estimate of token consumption and associated costs in real-time for the current chat session, based on the selected model.
+*   **Mock API Mode:** Test the application's UI and UX without an actual OpenAI API key. The app will provide random mock responses.
 
 ## Setup and Usage
 
@@ -24,15 +26,17 @@ This project is a simple frontend implementation of a ChatGPT-like interface tha
         ```javascript
         const OPENAI_API_KEY = 'YOUR_API_KEY_HERE'; // <<< REPLACE THIS!
         ```
-    *   Replace `'YOUR_API_KEY_HERE'` with your actual OpenAI API key.
-    *   **IMPORTANT SECURITY NOTE:** This method of including the API key directly in frontend JavaScript is **NOT SECURE** for production applications. It exposes your API key to anyone who inspects the browser's code. For personal use or development, it might be acceptable, but for any public deployment, you should implement a backend proxy to handle API requests securely.
+    *   Replace `'YOUR_API_KEY_HERE'` with your actual OpenAI API key to connect to the real OpenAI service.
+    *   **If you leave it as `'YOUR_API_KEY_HERE'`, the application will run in a MOCK API MODE**, providing random pre-defined responses. This is useful for testing the UI and features without an active API key.
+    *   **IMPORTANT SECURITY NOTE:** This method of including the API key directly in frontend JavaScript is **NOT SECURE** for production applications if you use a real key. It exposes your API key to anyone who inspects the browser's code. For personal use or development with a real key, it might be acceptable, but for any public deployment, you should implement a backend proxy to handle API requests securely.
 
 3.  **Open in Browser:**
     *   Open the `index.html` file in your web browser (e.g., by double-clicking it or using a local web server).
 
 4.  **Start Chatting:**
+    *   The sidebar (chat history) is accessible via a menu icon on mobile.
     *   Select your desired model.
-    *   Type your message in the input box and press Enter or click "Send".
+    *   Type your message in the input box and press Enter or click the send icon.
 
 ## Files
 

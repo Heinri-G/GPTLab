@@ -8,14 +8,18 @@
 </head>
 <body>
     <div class="container">
-        <aside class="sidebar">
-            <h2>Chat History</h2>
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Chat History</h2>
+                <button id="close-sidebar-button" aria-label="Close sidebar">&times;</button>
+            </div>
             <ul id="chat-history">
                 <!-- Chat history items will be populated here -->
             </ul>
         </aside>
         <main class="chat-area">
             <header class="chat-header">
+                <button id="menu-button" aria-label="Open sidebar">&#9776;</button> <!-- Hamburger Icon -->
                 <div class="model-selection">
                     <label for="model-select">Model:</label>
                     <select id="model-select">
