@@ -10,6 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuButton = document.getElementById('menu-button');
     const closeSidebarButton = document.getElementById('close-sidebar-button');
     const sendButtonIcon = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>`;
+    const advancedInputButton = document.getElementById('advanced-input-button');
+    const advancedInputPopover = document.getElementById('advanced-input-popover');
+    const imageUploadInput = document.getElementById('image-upload-input');
 
 
     // --- Hardcoded API Key (FOR DEVELOPMENT ONLY) ---
@@ -54,6 +57,58 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset token and cost if model changes, or handle context differently
         resetTokenCost();
     });
+
+    advancedInputButton.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent click from closing popover immediately if it's already open due to body click listener
+        advancedInputPopover.classList.toggle('show');
+    });
+
+    document.addEventListener('click', (event) => { // Close popover if clicked outside
+        if (!advancedInputPopover.contains(event.target) && !advancedInputButton.contains(event.target) && advancedInputPopover.classList.contains('show')) {
+            advancedInputPopover.classList.remove('show');
+        }
+    });
+
+    advancedInputPopover.addEventListener('click', (event) => {
+        if (event.target.tagName === 'BUTTON') {
+            const feature = event.target.dataset.feature;
+            handleAdvancedFeature(feature);
+            advancedInputPopover.classList.remove('show'); // Close popover after selection
+        }
+    });
+
+    imageUploadInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            console.log("Image selected:", file.name);
+            // Placeholder: display image name or a thumbnail (actual upload/processing is out of scope)
+            displayMessage(`Selected image: ${file.name} (upload feature is a placeholder)`, 'user');
+        }
+    });
+
+
+    function handleAdvancedFeature(feature) {
+        console.log("Advanced feature selected:", feature);
+        switch (feature) {
+            case 'upload-image':
+                imageUploadInput.click(); // Trigger hidden file input
+                break;
+            case 'search-web':
+                alert("Feature: Search Web (Placeholder)\nThis would typically involve backend processing to search the web and provide results to the AI.");
+                // You could add a placeholder message like:
+                // currentChat.push({ role: 'user', content: '[User initiated web search - placeholder]' });
+                // displayMessage("Searching the web... (placeholder)", 'system');
+                break;
+            case 'think-longer':
+                alert("Feature: Think Longer (Placeholder)\nThis is usually a prompt engineering aspect or a model's natural behavior for complex queries, not a button. For mock purposes, we could add a longer delay to the next mock response.");
+                // currentChat.push({ role: 'user', content: '[User requested model to think longer - placeholder]' });
+                // displayMessage("Thinking more deeply... (placeholder)", 'system');
+                break;
+            default:
+                console.warn("Unknown advanced feature:", feature);
+        }
+    }
+
 
     // --- Core Functions ---
     function sendMessage() {
@@ -326,41 +381,53 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // Sidebar toggle for mobile
-    if (menuButton && closeSidebarButton && sidebar) {
+    // Sidebar toggle logic
+    if (menuButton && sidebar) {
         menuButton.addEventListener('click', () => {
-            sidebar.classList.add('open');
+            if (window.innerWidth <= 768) { // Mobile behavior: overlay
+                sidebar.classList.toggle('open'); // 'open' class handles translateX for mobile
+                // closeSidebarButton is displayed via CSS on mobile when sidebar is open
+            } else { // Desktop behavior: collapse/expand
+                sidebar.classList.toggle('collapsed-desktop');
+                // chatArea.classList.toggle('full-width', sidebar.classList.contains('collapsed-desktop'));
+            }
         });
+    }
 
+    // Mobile specific: close button inside sidebar and click outside
+    if (closeSidebarButton && sidebar) {
         closeSidebarButton.addEventListener('click', () => {
-            sidebar.classList.remove('open');
-        });
-
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', (event) => {
-            if (window.innerWidth <= 768 && sidebar.classList.contains('open') &&
-                !sidebar.contains(event.target) && !menuButton.contains(event.target)) {
+            if (window.innerWidth <= 768) {
                 sidebar.classList.remove('open');
             }
         });
     }
+    document.addEventListener('click', (event) => {
+        if (window.innerWidth <= 768 && sidebar.classList.contains('open') &&
+            !sidebar.contains(event.target) && !menuButton.contains(event.target)) {
+            sidebar.classList.remove('open');
+        }
+    });
+
+
      // Load chat and close sidebar on mobile
-    function loadChatAndCloseSidebar(chatId) {
+    function loadChatAndHandleSidebar(chatId) {
         loadChat(chatId);
         if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
             sidebar.classList.remove('open');
         }
+        // No need to collapse on desktop when a chat is loaded, user can do it manually.
     }
 
-    // Update chat history list items to use loadChatAndCloseSidebar
+    // Update chat history list items to use loadChatAndHandleSidebar
     function addChatToHistoryList(chatId, title) {
         const listItem = document.createElement('li');
         listItem.textContent = title;
         listItem.dataset.chatId = chatId;
-        listItem.addEventListener('click', () => loadChatAndCloseSidebar(chatId)); // MODIFIED HERE
+        listItem.addEventListener('click', () => loadChatAndHandleSidebar(chatId)); // MODIFIED HERE
 
         const deleteButton = document.createElement('button');
-        deleteButton.innerHTML = '&times;'; // More modern delete icon
+        deleteButton.innerHTML = '&times;'; // Modern delete icon
         deleteButton.classList.add('delete-chat-button');
         deleteButton.setAttribute('aria-label', 'Delete chat');
         deleteButton.onclick = (event) => {

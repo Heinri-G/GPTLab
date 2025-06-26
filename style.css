@@ -1,11 +1,16 @@
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     margin: 0; /* Ensure no default body margin */
     padding: 0; /* Ensure no default body padding */
     background-color: #fff; /* Make body background same as container if container is full bleed */
     /* display: flex; justify-content: center; align-items: center; */ /* No longer needed if container is full screen */
     min-height: 100vh;
     font-size: 16px; /* Base font size for responsiveness */
+    -webkit-font-smoothing: antialiased; /* Smoother fonts on WebKit */
+    -moz-osx-font-smoothing: grayscale; /* Smoother fonts on Firefox */
 }
 
 .container {
@@ -206,7 +211,35 @@ body {
     padding: 10px 15px;
     border-top: 1px solid #e5e7eb;
     background-color: #f8f9fa; /* Slightly different background for input area */
+    position: relative; /* For popover positioning */
 }
+
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+#advanced-input-button {
+    background: none;
+    border: none;
+    color: #5f6368; /* Google grey */
+    font-size: 1.5em; /* Adjust as needed */
+    padding: 8px;
+    margin-right: 8px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s ease;
+}
+#advanced-input-button:hover {
+    background-color: #e8eaed; /* Light grey hover */
+}
+
 
 #message-input {
     flex-grow: 1;
@@ -283,25 +316,68 @@ body {
 
     .sidebar {
         position: relative; /* Static position on desktop */
-        transform: translateX(0); /* Always visible on desktop */
-        width: 25%;
-        min-width: 260px; /* Minimum width for sidebar */
-        max-width: 320px; /* Maximum width for sidebar */
-        border-right: 1px solid #2a2d35; /* Restore border for desktop */
+        transform: translateX(0); /* Default state: visible */
+        min-width: 260px; /* Default open width */
+        max-width: 320px;
+        border-right: 1px solid #2a2d35;
         height: auto; /* Auto height on desktop */
+        transition: min-width 0.3s ease-in-out, width 0.3s ease-in-out, padding 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        /* opacity: 1; */ /* ensure visible */
     }
 
-    #menu-button, #close-sidebar-button {
-        display: none !important; /* Ensure they are hidden on desktop */
+    .sidebar.collapsed-desktop {
+        min-width: 0px; /* Collapsed width */
+        width: 0px; /* Effectively hide content by making width 0 */
+        padding-left: 0;
+        padding-right: 0;
+        border-right: none;
+        overflow: hidden; /* Hide content when collapsed */
+        opacity: 0; /* Fade out */
     }
+    /* Content inside sidebar to hide when collapsed */
+    .sidebar.collapsed-desktop > *:not(.sidebar-toggle-desktop) {
+        display: none;
+    }
+
+
+    #menu-button { /* This is the main toggle now for both mobile and desktop */
+        display: block !important; /* Always show the menu button */
+        /* Styles for #menu-button already exist, ensure they are suitable for desktop too */
+    }
+    #close-sidebar-button { /* This is only for mobile overlay */
+        display: none !important; /* Hidden on desktop, shown on mobile via @media rule */
+    }
+
 
     .chat-area {
-        width: 75%;
+        flex-grow: 1;
+        display: flex; /* Needed to center the inner content wrapper */
+        flex-direction: column;
+        align-items: center; /* Center content-wrapper horizontally */
+        overflow-x: hidden; /* Prevent horizontal scroll if content-wrapper is centered */
+         /* transition: width 0.3s ease-in-out; */ /* May not be needed if flex-grow handles it */
     }
+
+    .chat-content-wrapper { /* New wrapper for messages and input area */
+        width: 100%;
+        max-width: 900px; /* Max width for chat content on desktop */
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .messages-area {
+       /* flex-grow: 1; already has this */
+       width: 100%; /* Take full width of chat-content-wrapper */
+    }
+    .input-area {
+        /* width: 100%; already has this via input-wrapper */
+        width: 100%; /* Take full width of chat-content-wrapper */
+    }
+
 
     .token-usage-cost { /* Adjust token display for desktop if needed */
         top: 20px;
-        right: 20px;
+        right: 20px; /* Will be relative to viewport, which is fine */
         font-size: 0.8em;
     }
 }
@@ -315,21 +391,24 @@ body {
 
     .sidebar {
         /* Styles for mobile (already defined: absolute, translateX(-100%)) */
-        /* Ensure it takes full viewport height if opened */
-         box-shadow: 2px 0 10px rgba(0,0,0,0.1); /* Add shadow when open */
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1); /* Add shadow when open */
     }
-     #close-sidebar-button {
-        display: block; /* Show close button on mobile */
+     #close-sidebar-button { /* This is the X button inside the sidebar for mobile */
+        display: block;
+    }
+    #menu-button { /* This is the hamburger menu in chat-header */
+        display: block; /* Show hamburger menu button on mobile */
+    }
+
+    /* On mobile, chat-content-wrapper should take full width */
+    .chat-content-wrapper {
+        max-width: none; /* No max-width on mobile */
     }
 
 
     .chat-header {
         padding: 10px 12px;
     }
-    #menu-button {
-        display: block; /* Show menu button on mobile */
-    }
-
 
     .model-selection label {
         font-size: 0.85em;
@@ -391,7 +470,44 @@ body {
         }
          .token-usage-cost {
             /* Potentially hide cost or make it even smaller if it overlaps */
-            display: none; /* Example: hide if too cluttered */
+            /* display: none; */ /* Re-enable if needed, for now let it be */
         }
     }
+}
+
+/* Popover for Advanced Input */
+.popover {
+    display: none; /* Hidden by default */
+    position: absolute;
+    bottom: calc(100% + 5px); /* Position above the input-area */
+    left: 15px; /* Align with advanced input button's typical position */
+    background-color: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1100; /* Above other elements in input area */
+    width: auto; /* Adjust width based on content */
+    padding: 8px;
+}
+
+.popover.show {
+    display: block;
+}
+
+.popover button {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.9em;
+    color: #333;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.popover button:hover {
+    background-color: #f0f2f5; /* Light hover for popover buttons */
 }

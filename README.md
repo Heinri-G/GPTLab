@@ -4,8 +4,10 @@ This project is a simple frontend implementation of a ChatGPT-like interface tha
 
 ## Features
 
-*   **Modern & Responsive UI:** Clean, intuitive interface that adapts to desktop and mobile devices.
+*   **Modern & Responsive UI:** Clean, intuitive interface using the 'Inter' web font, adapting to desktop and mobile devices. Chat content on desktop is max-width for readability.
+*   **Collapsible Sidebar:** Chat history sidebar is collapsible on both desktop and mobile for better screen space management.
 *   **Chat Interface:** Send messages to an AI model and receive responses.
+    *   **Advanced Input Options (UI Placeholders):** Includes UI for image upload, web search, and longer thinking requests (functionality is placeholder).
 *   **Chat History:** Conversations are saved in your browser's local storage. You can load previous chats, start new ones, and delete old ones.
 *   **Model Selection:** Choose between different OpenAI models (e.g., GPT-3.5-Turbo, GPT-4).
 *   **Token Usage & Cost:** See an estimate of token consumption and associated costs in real-time for the current chat session, based on the selected model.
@@ -34,7 +36,8 @@ This project is a simple frontend implementation of a ChatGPT-like interface tha
     *   Open the `index.html` file in your web browser (e.g., by double-clicking it or using a local web server).
 
 4.  **Start Chatting:**
-    *   The sidebar (chat history) is accessible via a menu icon on mobile.
+    *   The sidebar (chat history) is accessible via the menu icon (hamburger icon) in the chat header on both mobile and desktop.
+    *   Use the '+' icon next to the message input for advanced input options (currently placeholders).
     *   Select your desired model.
     *   Type your message in the input box and press Enter or click the send icon.
 

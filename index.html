@@ -18,10 +18,11 @@
             </ul>
         </aside>
         <main class="chat-area">
-            <header class="chat-header">
-                <button id="menu-button" aria-label="Open sidebar">&#9776;</button> <!-- Hamburger Icon -->
-                <div class="model-selection">
-                    <label for="model-select">Model:</label>
+            <div class="chat-content-wrapper"> <!-- New wrapper -->
+                <header class="chat-header">
+                    <button id="menu-button" aria-label="Open sidebar">&#9776;</button> <!-- Hamburger Icon -->
+                    <div class="model-selection">
+                        <label for="model-select">Model:</label>
                     <select id="model-select">
                         <!-- Options will be populated by JavaScript -->
                         <option value="gpt-3.5-turbo">GPT-3.5-Turbo</option>
@@ -38,9 +39,19 @@
                 <!-- Chat messages will be displayed here -->
             </div>
             <footer class="input-area">
-                <textarea id="message-input" placeholder="Send a message..."></textarea>
-                <button id="send-button">Send</button>
+                <div class="input-wrapper">
+                    <button id="advanced-input-button" aria-label="Advanced input options">&#10010;</button> <!-- Plus icon -->
+                    <textarea id="message-input" placeholder="Send a message..."></textarea>
+                    <button id="send-button" aria-label="Send message"></button>
+                </div>
+                <div id="advanced-input-popover" class="popover">
+                    <button data-feature="upload-image">Upload Image</button>
+                    <button data-feature="search-web">Search Web</button>
+                    <button data-feature="think-longer">Think Longer</button>
+                    <input type="file" id="image-upload-input" accept="image/*" style="display: none;">
+                </div>
             </footer>
+            </div> <!-- End of chat-content-wrapper -->
         </main>
     </div>
     <script src="script.js"></script>
