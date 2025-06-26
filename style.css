@@ -1,25 +1,26 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    margin: 0;
-    background-color: #f0f2f5; /* Slightly lighter background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    margin: 0; /* Ensure no default body margin */
+    padding: 0; /* Ensure no default body padding */
+    background-color: #fff; /* Make body background same as container if container is full bleed */
+    /* display: flex; justify-content: center; align-items: center; */ /* No longer needed if container is full screen */
     min-height: 100vh;
     font-size: 16px; /* Base font size for responsiveness */
 }
 
 .container {
     display: flex;
-    width: 100%; /* Full width on mobile */
-    max-width: 1200px;
-    height: 100vh; /* Full height on mobile */
-    max-height: none; /* Remove max-height for mobile full screen */
+    width: 100%; /* Full width on all devices */
+    max-width: none; /* Remove max-width constraint */
+    height: 100vh; /* Full height */
+    /* max-height: none; */ /* Already set, but ensure it stays for full screen */
     background-color: #fff;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05); /* Softer shadow */
-    border-radius: 0; /* No radius on mobile for full screen */
+    box-shadow: none; /* No shadow if it's full screen */
+    border-radius: 0; /* No radius for full screen */
     overflow: hidden;
-    flex-direction: column; /* Stack sidebar and chat area on mobile */
+    flex-direction: column; /* Stack sidebar and chat area on mobile by default */
+    margin: 0; /* Ensure no margin on container */
+    padding: 0; /* Ensure no padding on container */
 }
 
 /* Sidebar Styles */
@@ -271,12 +272,13 @@ body {
 /* --- Responsive Design --- */
 
 /* Desktop First Approach - Overrides for smaller screens */
-@media (min-width: 769px) {
+@media (min-width: 769px) { /* Desktop layout */
     .container {
         flex-direction: row; /* Sidebar and chat area side-by-side */
-        border-radius: 12px; /* Rounded corners on desktop */
-        height: 90vh;
-        max-height: 800px; /* Restore max-height for desktop */
+        /* No border-radius, max-height, or specific height if we want full screen bleed */
+        /* border-radius: 0; */ /* Already set globally */
+        /* height: 100vh; */ /* Already set globally */
+        /* max-height: none; */ /* Already set globally */
     }
 
     .sidebar {

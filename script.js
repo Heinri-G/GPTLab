@@ -17,11 +17,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // For example, use a backend proxy.
     const OPENAI_API_KEY = 'YOUR_API_KEY_HERE'; // <<< REPLACE THIS!
 
-    if (OPENAI_API_KEY === 'YOUR_API_KEY_HERE') {
-        alert("Please replace 'YOUR_API_KEY_HERE' with your actual OpenAI API key in script.js.");
-        sendButton.disabled = true;
-        messageInput.disabled = true;
-    }
+    // Alert for API key is fine, but we should not disable input if mock mode is active.
+    // The mock mode itself checks for OPENAI_API_KEY === 'YOUR_API_KEY_HERE'.
+    // The actual API call in sendMessage also checks this.
+    // So, we can remove the disabling here.
+    // if (OPENAI_API_KEY === 'YOUR_API_KEY_HERE') {
+    //     alert("Reminder: Using MOCK API mode. Replace 'YOUR_API_KEY_HERE' in script.js with your actual OpenAI API key to use the real API.");
+    //     // sendButton.disabled = true; // Keep enabled for mock mode
+    //     // messageInput.disabled = true; // Keep enabled for mock mode
+    // }
 
     let currentChat = [];
     let chatHistories = {}; // Store multiple chat sessions
@@ -56,10 +60,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageText = messageInput.value.trim();
         if (messageText === '') return;
 
-        if (!OPENAI_API_KEY || OPENAI_API_KEY === 'YOUR_API_KEY_HERE') {
-            alert("API Key not configured. Please set it in script.js");
-            return;
+        // If using actual API (not mock), and key is not set, then alert and return.
+        // The mock mode will proceed even if key is 'YOUR_API_KEY_HERE'.
+        if (OPENAI_API_KEY !== 'YOUR_API_KEY_HERE' && (!OPENAI_API_KEY || OPENAI_API_KEY.startsWith('sk-') === false)) {
+             alert("OpenAI API Key is not configured or invalid. Please set it correctly in script.js to use the live API. Falling back to Mock API mode if enabled, or no response.");
+            // Optionally, you could strictly prevent sending to mock if a bad real key is half-entered.
+            // For now, the mock logic in fetchOpenAIResponse will take over if key is exactly 'YOUR_API_KEY_HERE'.
         }
+
 
         displayMessage(messageText, 'user');
         currentChat.push({ role: 'user', content: messageText });
